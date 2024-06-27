@@ -6,17 +6,25 @@ public class Dev {
     private String nome;
     private Set<Conteudo> conteudosInscritos = new LinkedHashSet<>();
     private Set<Conteudo> conteudosConcluidos = new LinkedHashSet<>();
+    private double xp = 0.0;
 
     public void inscreverBootcamp(Bootcamp bootcamp){
         this.conteudosInscritos.addAll(bootcamp.getConteudos());
         bootcamp.getDevsInscritos().add(this);
+        System.out.println(nome + " inscrito no bootcamp: " + bootcamp.getNome());
     }
 
     public void progredir() {
-        Optional<Conteudo> conteudo = this.conteudosInscritos.stream().findFirst();
-        if(conteudo.isPresent()) {
-            this.conteudosConcluidos.add(conteudo.get());
-            this.conteudosInscritos.remove(conteudo.get());
+        if (!conteudosInscritos.isEmpty()) {
+            Conteudo proximoConteudo = conteudosInscritos.iterator().next();
+            conteudosConcluidos.add(proximoConteudo);
+            conteudosInscritos.remove(proximoConteudo);
+
+            double xpGanho = proximoConteudo.calcularXp();
+            xp += xpGanho;
+
+            System.out.println(nome + " progrediu no conteúdo: " + proximoConteudo.getTitulo());
+            System.out.println("XP ganho: " + xpGanho);
         } else {
             System.err.println("Você não está matriculado em nenhum conteúdo!");
         }
@@ -30,13 +38,7 @@ public class Dev {
             soma += next;
         }
         return soma;
-
-        /*return this.conteudosConcluidos
-                .stream()
-                .mapToDouble(Conteudo::calcularXp)
-                .sum();*/
     }
-
 
     public String getNome() {
         return nome;
@@ -45,6 +47,7 @@ public class Dev {
     public void setNome(String nome) {
         this.nome = nome;
     }
+
 
     public Set<Conteudo> getConteudosInscritos() {
         return conteudosInscritos;
@@ -61,6 +64,35 @@ public class Dev {
     public void setConteudosConcluidos(Set<Conteudo> conteudosConcluidos) {
         this.conteudosConcluidos = conteudosConcluidos;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Nome: ").append(nome).append("\n");
+
+        sb.append("Conteúdos Inscritos:\n");
+        if (!conteudosInscritos.isEmpty()) {
+            for (Conteudo conteudo : conteudosInscritos) {
+                sb.append("\t").append(conteudo).append("\n");
+            }
+        } else {
+            sb.append("\t(nenhum conteúdo inscrito)\n");
+        }
+
+        sb.append("Conteúdos Concluídos:\n");
+        if (!conteudosConcluidos.isEmpty()) {
+            for (Conteudo conteudo : conteudosConcluidos) {
+                sb.append("\t").append(conteudo).append("\n");
+            }
+        } else {
+            sb.append("\t(nenhum conteúdo concluído)\n");
+        }
+
+        sb.append("XP: ").append(xp).append("\n");
+
+        return sb.toString();
+    }
+
 
     @Override
     public boolean equals(Object o) {
